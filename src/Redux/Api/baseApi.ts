@@ -8,8 +8,16 @@ export const libraryApi = createApi({
         getBooks:builder.query({
             query:()=>"/books",
             providesTags:["books"]
+        }),
+        createBook:builder.mutation({
+            query:(bookData)=>({
+                url:"/create-book",
+                method:"POST",
+                body:bookData
+            }),
+            invalidatesTags:["books"]
         })
     })
 })
 
-export const {useGetBooksQuery} = libraryApi
+export const {useGetBooksQuery, useCreateBookMutation} = libraryApi
