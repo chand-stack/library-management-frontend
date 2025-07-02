@@ -3,6 +3,7 @@ import { useDeleteBookMutation, useGetBooksQuery } from "../../../Redux/Api/base
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import type { IBook } from "../../../Types/book.type";
 import Swal from "sweetalert2";
+import { Link } from "react-router";
 
 
 
@@ -37,8 +38,8 @@ const deleteHandler = async (id:string)=>{
   confirmButtonColor: "#3085d6",
   cancelButtonColor: "#d33",
   confirmButtonText: "Yes, delete it!"
-}).then((result) => {
-    const res = deleteBook(id)
+}).then( async(result) => {
+    const res = await deleteBook(id)
 console.log(res);
   if (result.isConfirmed) {
     Swal.fire({
@@ -63,7 +64,7 @@ console.log(res);
     <p>{book?.description}</p>
     <div className="card-actions justify-end">
       <button className="btn btn-primary">Buy Now</button>
-      <button  className="btn btn-primary">View</button>
+      <Link to={`/view-book/${book?._id}`} className="btn btn-primary">View</Link>
       <MdEditSquare onClick={()=>{editBookController(book)}}/>
       <RiDeleteBin5Fill onClick={()=>deleteHandler(book?._id)} />
     </div>
