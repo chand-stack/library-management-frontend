@@ -1,20 +1,27 @@
 import { MdEditSquare } from "react-icons/md";
-import { useDeleteBookMutation, useGetBooksQuery } from "../../../Redux/Api/baseApi";
+import { useBorrowBookMutation, useDeleteBookMutation, useGetBooksQuery } from "../../../Redux/Api/baseApi";
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import type { IBook } from "../../../Types/book.type";
 import Swal from "sweetalert2";
 import { Link } from "react-router";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 
 
 const AllBooks = () => {
        const{data,isLoading}=useGetBooksQuery(undefined)
        const [deleteBook] = useDeleteBookMutation()
+       const [createBorrow] = useBorrowBookMutation()
+       const [borrowId,setBorrowId]= useState<string>()
+         const {register,handleSubmit} = useForm()
 
     if(isLoading){
         return <p>loading.......</p>
     }
     console.log(data.data);
+    console.log(borrowId);
+    
 
 
     const editBookController = (book:IBook) => {
@@ -28,8 +35,6 @@ const AllBooks = () => {
 };
 
 const deleteHandler = async (id:string)=>{
-
-
     Swal.fire({
   title: "Are you sure?",
   text: "You won't be able to revert this!",
@@ -50,6 +55,10 @@ console.log(res);
   }
 });
 }
+
+ const onSubmit = async (data) => {
+    const res = await createBorrow({...data,book:borrowId, quantity:Number(data?.quantity)}).unwrap()
+    console.log(res)}
     return (
         <div className="container mx-auto px-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {
@@ -63,7 +72,18 @@ console.log(res);
     <h2 className="card-title">{book?.title}</h2>
     <p>{book?.description}</p>
     <div className="card-actions justify-end">
-      <button className="btn btn-primary">Buy Now</button>
+     <button
+  onClick={() => {
+    const modal = document.getElementById('borrow_modal') as HTMLDialogElement | null;
+    if (modal) {
+      modal.showModal(); // ✅ This is the missing part
+    }
+    setBorrowId(book?._id as string);
+  }}
+  className="btn btn-primary"
+>
+  Borrow Now
+</button>
       <Link to={`/view-book/${book?._id}`} className="btn btn-primary">View</Link>
       <MdEditSquare onClick={()=>{editBookController(book)}}/>
       <RiDeleteBin5Fill onClick={()=>deleteHandler(book?._id)} />
@@ -76,6 +96,33 @@ console.log(res);
   <div className="modal-box">
     <h3 className="font-bold text-lg">Hello!</h3>
     <p className="py-4">Press ESC key or click the button below to close</p>
+    <div className="modal-action">
+      <form method="dialog">
+        {/* if there is a button in form, it will close the modal */}
+        <button className="btn">Close</button>
+      </form>
+    </div>
+  </div>
+</dialog>
+
+{/* borrow modal */}
+            <dialog id="borrow_modal" className="modal">
+  <div className="modal-box">
+    <h3 className="font-bold text-lg">Hello!</h3>
+    <form onSubmit={handleSubmit(onSubmit)} className="mx-auto w-full max-w-2xl">
+                <fieldset className="fieldset">
+  <legend className="fieldset-legend">Quantity</legend>
+  <input {...register("quantity")} required type="number" className="input" placeholder="Type here" />
+</fieldset>
+                <fieldset className="fieldset">
+  <legend className="fieldset-legend">Due Date</legend>
+   <input {...register("dueDate")} required type="date" className="input" placeholder="Type here" />
+</fieldset>
+<div>
+
+<button className="btn">Borrow Now</button>
+</div>
+            </form>
     <div className="modal-action">
       <form method="dialog">
         {/* if there is a button in form, it will close the modal */}
