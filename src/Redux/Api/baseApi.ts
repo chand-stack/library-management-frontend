@@ -38,8 +38,12 @@ export const libraryApi = createApi({
                 body:borrowData
             }),
             invalidatesTags:["borrows"]
+        }),
+        getBorrow:builder.query({
+            query:()=>"/borrow",
+            providesTags:["borrows"]
         })
     })
 })
 
-export const {useGetBooksQuery, useCreateBookMutation,useDeleteBookMutation, useGetBookByIdQuery, useBorrowBookMutation} = libraryApi
+export const {useGetBooksQuery, useCreateBookMutation,useDeleteBookMutation, useGetBookByIdQuery, useBorrowBookMutation, useGetBorrowQuery} = libraryApi

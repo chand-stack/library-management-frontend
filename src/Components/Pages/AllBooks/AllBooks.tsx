@@ -6,6 +6,7 @@ import Swal from "sweetalert2";
 import { Link } from "react-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import UpdateBookModal from "./UpdateBookModal";
 
 
 
@@ -92,18 +93,7 @@ console.log(res);
 </div>)
             }
 
-            <dialog id="my_modal_1" className="modal">
-  <div className="modal-box">
-    <h3 className="font-bold text-lg">Hello!</h3>
-    <p className="py-4">Press ESC key or click the button below to close</p>
-    <div className="modal-action">
-      <form method="dialog">
-        {/* if there is a button in form, it will close the modal */}
-        <button className="btn">Close</button>
-      </form>
-    </div>
-  </div>
-</dialog>
+          <UpdateBookModal/>
 
 {/* borrow modal */}
             <dialog id="borrow_modal" className="modal">
