@@ -1,4 +1,5 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react"
+import type { IBook } from "../../Types/book.type"
 
 export const libraryApi = createApi({
     reducerPath:"libraryApi",
@@ -24,6 +25,15 @@ export const libraryApi = createApi({
             }),
             providesTags:["books"]
         }),
+        updateBook:builder.mutation({
+            query:(bookData:IBook)=>({
+                url:`/books/${bookData?._id}`,
+                method:"PUT",
+                body:bookData
+            }),
+            invalidatesTags:["books"]
+        })
+        ,
         deleteBook: builder.mutation({
             query:(id: string)=>({
                 url:`/books/${id}`,
@@ -46,4 +56,4 @@ export const libraryApi = createApi({
     })
 })
 
-export const {useGetBooksQuery, useCreateBookMutation,useDeleteBookMutation, useGetBookByIdQuery, useBorrowBookMutation, useGetBorrowQuery} = libraryApi
+export const {useGetBooksQuery, useCreateBookMutation,useDeleteBookMutation, useGetBookByIdQuery, useBorrowBookMutation, useGetBorrowQuery, useUpdateBookMutation} = libraryApi

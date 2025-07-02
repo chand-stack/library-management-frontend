@@ -12,6 +12,7 @@ import UpdateBookModal from "./UpdateBookModal";
 
 const AllBooks = () => {
        const{data,isLoading}=useGetBooksQuery(undefined)
+       const [selectedBook, setSelectedBook] = useState<IBook | null>(null);
        const [deleteBook] = useDeleteBookMutation()
        const [createBorrow] = useBorrowBookMutation()
        const [borrowId,setBorrowId]= useState<string>()
@@ -25,15 +26,15 @@ const AllBooks = () => {
     
 
 
-    const editBookController = (book:IBook) => {
-  const modal = document.getElementById('my_modal_1') as HTMLDialogElement | null;
-  if (modal) {
-    modal.showModal();
-  } else {
-    console.warn('Modal element not found');
-  }
-  console.log(book, "from view");
-};
+//     const editBookController = (book:IBook) => {
+//   const modal = document.getElementById('my_modal_1') as HTMLDialogElement | null;
+//   if (modal) {
+//     modal.showModal();
+//   } else {
+//     console.warn('Modal element not found');
+//   }
+//   console.log(book, "from view");
+// };
 
 const deleteHandler = async (id:string)=>{
     Swal.fire({
@@ -86,14 +87,22 @@ console.log(res);
   Borrow Now
 </button>
       <Link to={`/view-book/${book?._id}`} className="btn btn-primary">View</Link>
-      <MdEditSquare onClick={()=>{editBookController(book)}}/>
+     <MdEditSquare
+  onClick={() => {
+    setSelectedBook(book); // ✅ Set selected book
+    const modal = document.getElementById('my_modal_1') as HTMLDialogElement | null;
+    if (modal) modal.showModal(); // ✅ Open modal
+  }}
+  className="cursor-pointer"
+/>
       <RiDeleteBin5Fill onClick={()=>deleteHandler(book?._id)} />
     </div>
   </div>
 </div>)
             }
 
-          <UpdateBookModal/>
+            <UpdateBookModal bookData={selectedBook}/>
+          
 
 {/* borrow modal */}
             <dialog id="borrow_modal" className="modal">
