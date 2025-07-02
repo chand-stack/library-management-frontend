@@ -6,11 +6,11 @@ import Swal from "sweetalert2";
 import { Link } from "react-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import UpdateBookModal from "./UpdateBookModal";
+import UpdateBookModal from "../AllBooks/UpdateBookModal";
 
 
 
-const AllBooks = () => {
+const BooksCard = () => {
        const{data,isLoading}=useGetBooksQuery(undefined)
        const [selectedBook, setSelectedBook] = useState<IBook | null>(null);
        const [deleteBook] = useDeleteBookMutation()
@@ -62,8 +62,8 @@ console.log(res);
     const res = await createBorrow({...data,book:borrowId, quantity:Number(data?.quantity)}).unwrap()
     console.log(res)}
     return (
-        <div className="container mx-auto px-5 ">
-            {/* {
+        <div className="container mx-auto px-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {
                 data?.data?.map((book:IBook)=> <div key={book?._id} className="card bg-base-100 w-full shadow-sm">
   <figure>
     <img
@@ -86,7 +86,7 @@ console.log(res);
 >
   Borrow Now
 </button>
-      <Link to={`/view-book/${book?._id}`} className="btn btn-primary">View</Link>
+      <Link to={`/books/${book?._id}`} className="btn btn-primary">View</Link>
      <MdEditSquare
   onClick={() => {
     setSelectedBook(book); // ✅ Set selected book
@@ -99,45 +99,7 @@ console.log(res);
     </div>
   </div>
 </div>)
-            } */}
-            <table className="table">
-    {/* head */}
-    <thead>
-      <tr>
-        <th></th>
-        <th>Title</th>
-        <th>Author</th>
-        <th>Genre</th>
-        <th>ISBN</th>
-        <th>Copies</th>
-        <th>Availability</th>
-        <th>View</th>
-        <th>Update</th>
-        <th>Delete</th>
-      </tr>
-    </thead>
-    <tbody>
-      {
-        data?.data?.map((book:IBook,index:number)=><tr key={book?._id}>
-        <th>{index + 1}</th>
-        <td>{book?.title}</td>
-        <td>{book?.author}</td>
-        <td>{book?.genre}</td>
-        <td>{book?.isbn}</td>
-        <td>{book?.copies}</td>
-        <td>{book?.available ? "Available" : "Unavailable"}</td>
-        <td><Link to={`/books/${book?._id}`} className="btn btn-sm">View</Link></td>
-        <td><button onClick={() => {
-    setSelectedBook(book); // ✅ Set selected book
-    const modal = document.getElementById('my_modal_1') as HTMLDialogElement | null;
-    if (modal) modal.showModal(); // ✅ Open modal
-  }} className="btn btn-sm"><MdEditSquare className="cursor-pointer"/></button></td>
-<td><button onClick={()=>deleteHandler(book?._id)} className="btn btn-sm"><RiDeleteBin5Fill  /></button></td>
-      </tr>)
-      }
-      
-    </tbody>
-  </table>
+            }
 
             <UpdateBookModal bookData={selectedBook}/>
           
@@ -172,4 +134,4 @@ console.log(res);
     );
 };
 
-export default AllBooks;
+export default BooksCard;

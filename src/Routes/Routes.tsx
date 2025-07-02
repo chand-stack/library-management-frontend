@@ -16,15 +16,15 @@ const routes = createBrowserRouter([
                 element:<Home/>
             },
             {
-                path:"/all-books",
+                path:"/books",
                 element:<AllBooks/>
             },
             {
-                path:"/add-book",
+                path:"/create-book",
                 element:<AddBook/>
             },
             {
-                path:"/view-book/:id",
+                path:"/books/:id",
                 element:<ViewBook/>
             },
             {
