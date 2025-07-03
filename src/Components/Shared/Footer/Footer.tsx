@@ -10,7 +10,7 @@ import { Link } from "react-router";
 
 const Footer = () => {
   return (
-    <footer className="bg-[#34495E] text-white mt-20 px-6 pt-20 pb-6">
+    <footer className="bg-[#34495E] text-white px-6 pt-20 pb-6">
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-10">
 
         {/* About / Logo */}

@@ -106,7 +106,8 @@ console.log(res);
     <p className="text-sm text-gray-600 line-clamp-2">{book?.description}</p>
 
     <div className="card-actions justify-between items-center pt-2">
-      <button
+      {
+        book?.available ? <button
         onClick={() => {
           const modal = document.getElementById('borrow_modal') as HTMLDialogElement | null;
           if (modal) modal.showModal();
@@ -115,7 +116,11 @@ console.log(res);
         className="btn btn-sm bg-[#1BBC9B] hover:bg-[#169c85] text-white"
       >
         Borrow
+      </button> : <button
+        className="btn btn-sm " >
+        Unavailable
       </button>
+      }
 
       <Link
         to={`/books/${book?._id}`}
@@ -150,30 +155,44 @@ console.log(res);
 
 {/* borrow modal */}
             <dialog id="borrow_modal" className="modal">
-  <div className="modal-box">
-    <h3 className="font-bold text-lg">Hello!</h3>
-    <form onSubmit={handleSubmit(onSubmit)} className="mx-auto w-full max-w-2xl">
-                <fieldset className="fieldset">
-  <legend className="fieldset-legend">Quantity</legend>
-  <input {...register("quantity")} required type="number" className="input" placeholder="Type here" />
-</fieldset>
-                <fieldset className="fieldset">
-  <legend className="fieldset-legend">Due Date</legend>
-   <input {...register("dueDate")} required type="date" className="input" placeholder="Type here" />
-</fieldset>
-<div>
-
-<button className="btn">Borrow Now</button>
-</div>
+          <div className="modal-box">
+            <h3 className="font-bold text-lg mb-4">Borrow Book</h3>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="mx-auto w-full max-w-2xl space-y-4"
+            >
+              <fieldset className="fieldset">
+                <legend className="fieldset-legend">Quantity</legend>
+                <input
+                  {...register("quantity")}
+                  required
+                  type="number"
+                  className="input input-bordered w-full"
+                  placeholder="Type here"
+                />
+              </fieldset>
+              <fieldset className="fieldset">
+                <legend className="fieldset-legend">Due Date</legend>
+                <input
+                  {...register("dueDate")}
+                  required
+                  type="date"
+                  className="input input-bordered w-full"
+                  placeholder="Type here"
+                />
+              </fieldset>
+              <div>
+                <button className="btn bg-[#1BBC9B] hover:bg-[#16A086] text-white w-full">Borrow Now</button>
+              </div>
             </form>
-    <div className="modal-action">
-      <form method="dialog">
-        {/* if there is a button in form, it will close the modal */}
-        <button className="btn">Close</button>
-      </form>
-    </div>
-  </div>
-</dialog>
+            <div className="modal-action">
+              <form method="dialog">
+                {/* if there is a button in form, it will close the modal */}
+                <button className="btn text-white bg-red-600">Close</button>
+              </form>
+            </div>
+          </div>
+        </dialog>
         </div>
         <div onClick={()=>setBookQuantity(10)} className="text-center my-10">
               {

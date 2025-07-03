@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { useCreateBookMutation } from "../../../Redux/Api/baseApi";
 import AddBookBanner from "./AddBookBanner";
 import { FaBook } from "react-icons/fa";
+import NewsletterSection from "../../Shared/NewsletterSection/NewsletterSection";
 
 const AddBook = () => {
     const[createBook]=useCreateBookMutation();
@@ -109,6 +110,7 @@ const AddBook = () => {
     </form>
   </div>
 </div>
+<NewsletterSection/>
         </div>
     );
 };

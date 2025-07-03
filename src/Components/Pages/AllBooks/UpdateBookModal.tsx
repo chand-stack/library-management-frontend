@@ -34,27 +34,27 @@ const UpdateBookModal = ({ bookData }: { bookData: IBook | null }) => {
         <form onSubmit={handleSubmit(onSubmit)} className="mx-auto w-full max-w-2xl">
           <fieldset className="fieldset">
             <legend className="fieldset-legend">Title</legend>
-            <input {...register("title")} required type="text" className="input" placeholder="Type here" />
+            <input {...register("title")} required type="text" className="input w-full" placeholder="Type here" />
           </fieldset>
           <fieldset className="fieldset">
             <legend className="fieldset-legend">Description</legend>
-            <textarea {...register("description")} required className="input" placeholder="Type here" />
+            <textarea {...register("description")} required className="input w-full" placeholder="Type here" />
           </fieldset>
           <fieldset className="fieldset">
             <legend className="fieldset-legend">Author</legend>
-            <input {...register("author")} required type="text" className="input" placeholder="Type here" />
+            <input {...register("author")} required type="text" className="input w-full" placeholder="Type here" />
           </fieldset>
           <fieldset className="fieldset">
             <legend className="fieldset-legend">ISBN</legend>
-            <input {...register("isbn")} required type="text" className="input" placeholder="Type here" />
+            <input {...register("isbn")} required type="text" className="input w-full" placeholder="Type here" />
           </fieldset>
           <fieldset className="fieldset">
             <legend className="fieldset-legend">Copies</legend>
-            <input {...register("copies")} required type="number" className="input" placeholder="Type here" />
+            <input {...register("copies")} required type="number" className="input w-full" placeholder="Type here" />
           </fieldset>
           <fieldset className="fieldset">
             <legend className="fieldset-legend">Genre</legend>
-            <select {...register("genre")} required className="select">
+            <select {...register("genre")} required className="select w-full">
               <option value="FICTION">Fiction</option>
               <option value="NON_FICTION">Non Fiction</option>
               <option value="SCIENCE">Science</option>
@@ -63,11 +63,11 @@ const UpdateBookModal = ({ bookData }: { bookData: IBook | null }) => {
               <option value="FANTASY">Fantasy</option>
             </select>
           </fieldset>
-          <button className="btn mt-4">Update Book</button>
+          <button className="btn bg-[#1BBC9B] hover:bg-[#16A086] text-white w-full mt-4">Update Book</button>
         </form>
         <div className="modal-action">
           <form method="dialog">
-            <button className="btn">Close</button>
+            <button className="btn bg-red-600 text-white">Close</button>
           </form>
         </div>
       </div>

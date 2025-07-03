@@ -1,4 +1,5 @@
 import { useGetBorrowQuery } from "../../../Redux/Api/baseApi";
+import NewsletterSection from "../../Shared/NewsletterSection/NewsletterSection";
 import BorrowSummaryBanner from "./BorrowSummaryBanner";
 interface IBorrow{
    book: { title: string; isbn: string; };
@@ -46,7 +47,7 @@ const BorrowSummary = () => {
   </table>
 </div>
             </div>
-
+<NewsletterSection/>
         </div>
     );
 };

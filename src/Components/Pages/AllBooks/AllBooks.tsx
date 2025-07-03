@@ -9,6 +9,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import UpdateBookModal from "./UpdateBookModal";
 import AllBooksBanner from "./AllBooksBanner";
+import NewsletterSection from "../../Shared/NewsletterSection/NewsletterSection";
 
 const AllBooks = () => {
   const { data, isLoading } = useGetBooksQuery(undefined);
@@ -211,18 +212,19 @@ const currentBooks = books.slice(indexOfFirstBook, indexOfLastBook);
                 />
               </fieldset>
               <div>
-                <button className="btn btn-primary w-full">Borrow Now</button>
+                <button className="btn bg-[#1BBC9B] hover:bg-[#16A086] text-white w-full">Borrow Now</button>
               </div>
             </form>
             <div className="modal-action">
               <form method="dialog">
                 {/* if there is a button in form, it will close the modal */}
-                <button className="btn">Close</button>
+                <button className="btn text-white bg-red-600">Close</button>
               </form>
             </div>
           </div>
         </dialog>
       </div>
+      <NewsletterSection/>
     </div>
   );
 };
