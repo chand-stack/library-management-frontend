@@ -7,21 +7,28 @@ import { Link } from "react-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import UpdateBookModal from "../AllBooks/UpdateBookModal";
+import { FiBookOpen } from "react-icons/fi";
 
 
 
 const BooksCard = () => {
        const{data,isLoading}=useGetBooksQuery(undefined)
+       const [bookQuantity,setBookQuantity]=useState(5)
        const [selectedBook, setSelectedBook] = useState<IBook | null>(null);
        const [deleteBook] = useDeleteBookMutation()
        const [createBorrow] = useBorrowBookMutation()
        const [borrowId,setBorrowId]= useState<string>()
          const {register,handleSubmit} = useForm()
 
-    if(isLoading){
-        return <p>loading.......</p>
-    }
-    console.log(data.data);
+    if (isLoading) {
+  return (
+    <div className="flex justify-center items-center h-[60vh]">
+      <span className="loading loading-bars loading-xl text-[#1BBC9B]"></span>
+    </div>
+  );
+}
+
+    console.log(data?.data);
     console.log(borrowId);
     
 
@@ -62,44 +69,81 @@ console.log(res);
     const res = await createBorrow({...data,book:borrowId, quantity:Number(data?.quantity)}).unwrap()
     console.log(res)}
     return (
-        <div className="container mx-auto px-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+      <div className="py-10">
+        
+      
+        <div className="container mx-auto px-5 grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5">
             {
-                data?.data?.map((book:IBook)=> <div key={book?._id} className="card bg-base-100 w-full shadow-sm">
-  <figure>
-    <img
-      src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
-      alt="Shoes" />
-  </figure>
-  <div className="card-body">
-    <h2 className="card-title">{book?.title}</h2>
-    <p>{book?.description}</p>
-    <div className="card-actions justify-end">
-     <button
-  onClick={() => {
-    const modal = document.getElementById('borrow_modal') as HTMLDialogElement | null;
-    if (modal) {
-      modal.showModal(); // ✅ This is the missing part
-    }
-    setBorrowId(book?._id as string);
-  }}
-  className="btn btn-primary"
+                data?.data?.slice(0,bookQuantity)?.map((book:IBook)=> <div
+  key={book?._id}
+  className="card bg-base-100 w-full max-w-xs mx-auto shadow-md rounded-xl overflow-hidden hover:shadow-lg transition-shadow duration-300"
 >
-  Borrow Now
-</button>
-      <Link to={`/books/${book?._id}`} className="btn btn-primary">View</Link>
-     <MdEditSquare
-  onClick={() => {
-    setSelectedBook(book); // ✅ Set selected book
-    const modal = document.getElementById('my_modal_1') as HTMLDialogElement | null;
-    if (modal) modal.showModal(); // ✅ Open modal
-  }}
-  className="cursor-pointer"
-/>
-      <RiDeleteBin5Fill onClick={()=>deleteHandler(book?._id)} />
+  {/* Book Cover */}
+  <figure className="w-full bg-gradient-to-br from-[#34495E] to-[#16A085] text-white relative">
+    <div className="h-60 w-full flex flex-col justify-center items-center p-4 relative">
+      <FiBookOpen className="text-5xl mb-3 text-white/80" />
+
+      <div className="text-center space-y-1">
+        <h1 className="text-lg font-bold font-serif drop-shadow-md">{book?.title}</h1>
+        <p className="text-sm italic text-white/90">{book?.author}</p>
+      </div>
+
+      {/* Spine stripe */}
+      <div className="absolute top-0 left-0 h-full w-2 bg-white/20 rounded-r"></div>
+
+      {/* Genre tag */}
+      {book?.genre && (
+        <div className="absolute top-2 right-2 bg-white text-[#1BBC9B] text-xs font-semibold px-2 py-0.5 rounded shadow">
+          {book.genre}
+        </div>
+      )}
+    </div>
+  </figure>
+
+  {/* Card Body */}
+  <div className="card-body space-y-2 p-4">
+    <h2 className="text-base font-semibold line-clamp-1 text-gray-800">{book?.title}</h2>
+    <p className="text-sm text-gray-600 line-clamp-2">{book?.description}</p>
+
+    <div className="card-actions justify-between items-center pt-2">
+      <button
+        onClick={() => {
+          const modal = document.getElementById('borrow_modal') as HTMLDialogElement | null;
+          if (modal) modal.showModal();
+          setBorrowId(book?._id as string);
+        }}
+        className="btn btn-sm bg-[#1BBC9B] hover:bg-[#169c85] text-white"
+      >
+        Borrow
+      </button>
+
+      <Link
+        to={`/books/${book?._id}`}
+        className="btn btn-sm btn-outline text-sm text-[#1BBC9B] hover:border-[#1BBC9B]"
+      >
+        View
+      </Link>
+
+      <div className="flex gap-2 items-center text-lg">
+        <MdEditSquare
+          onClick={() => {
+            setSelectedBook(book);
+            const modal = document.getElementById('my_modal_1') as HTMLDialogElement | null;
+            if (modal) modal.showModal();
+          }}
+          className="cursor-pointer text-blue-500 hover:text-blue-600"
+        />
+        <RiDeleteBin5Fill
+          onClick={() => deleteHandler(book?._id)}
+          className="cursor-pointer text-red-500 hover:text-red-600"
+        />
+      </div>
     </div>
   </div>
 </div>)
             }
+
+            
 
             <UpdateBookModal bookData={selectedBook}/>
           
@@ -130,6 +174,12 @@ console.log(res);
     </div>
   </div>
 </dialog>
+        </div>
+        <div onClick={()=>setBookQuantity(10)} className="text-center my-10">
+              {
+                bookQuantity === 5 ? <button className="btn text-lg rounded-none h-12 bg-[#1BBC9B] hover:bg-[#16A086] text-white">LOAD MORE</button> : <Link to="/books" className="btn text-lg rounded-none h-12 bg-[#1BBC9B] hover:bg-[#16A086] text-white">DISCOVER MORE BOOKS</Link>
+              }
+            </div>
         </div>
     );
 };
