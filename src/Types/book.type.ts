@@ -15,4 +15,8 @@ quantity: number,
 dueDate: Date
 }
 
-
+export type TBorrow={
+  book: string,
+  quantity:number,
+  dueDate: Date
+}

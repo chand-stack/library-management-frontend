@@ -5,28 +5,39 @@ import { useUpdateBookMutation } from "../../../Redux/Api/baseApi";
 
 const UpdateBookModal = ({ bookData }: { bookData: IBook | null }) => {
   const { register, handleSubmit, reset } = useForm<IBook>();
-  const [updateBook, { isLoading, isSuccess, error }]=useUpdateBookMutation()
+  const [updateBook, { isLoading, isSuccess, error }] = useUpdateBookMutation();
 
-  // 🧠 Reset form values when bookData changes
+  // Reset form values when bookData changes
   useEffect(() => {
-    if (bookData) {
-      reset(bookData);
-    }
+    if (bookData) reset(bookData);
   }, [bookData, reset]);
 
+  // Log status
+  useEffect(() => {
+    if (isSuccess) console.log("Update successful");
+    if (error) console.error("Update failed:", error);
+  }, [isSuccess, error]);
+
   const onSubmit = async (data: IBook) => {
-     try {
+    try {
       const res = await updateBook(data).unwrap();
       console.log("Book updated:", res);
-
       const modal = document.getElementById("my_modal_1") as HTMLDialogElement | null;
       modal?.close();
-
     } catch (err) {
       console.error("Update failed:", err);
     }
   };
 
+  if (!bookData) return null; // ✅ Don't render if no book selected
+
+   if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-[60vh]">
+        <span className="loading loading-bars loading-xl text-[#1BBC9B]"></span>
+      </div>
+    );
+  }
   return (
     <dialog id="my_modal_1" className="modal">
       <div className="modal-box">

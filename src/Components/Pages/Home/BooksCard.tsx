@@ -1,7 +1,7 @@
 import { MdEditSquare } from "react-icons/md";
 import { useBorrowBookMutation, useDeleteBookMutation, useGetBooksQuery } from "../../../Redux/Api/baseApi";
 import { RiDeleteBin5Fill } from "react-icons/ri";
-import type { IBook } from "../../../Types/book.type";
+import type { IBook, TBorrow } from "../../../Types/book.type";
 import Swal from "sweetalert2";
 import { Link } from "react-router";
 import { useState } from "react";
@@ -18,7 +18,7 @@ const BooksCard = () => {
        const [deleteBook] = useDeleteBookMutation()
        const [createBorrow] = useBorrowBookMutation()
        const [borrowId,setBorrowId]= useState<string>()
-         const {register,handleSubmit} = useForm()
+         const {register,handleSubmit} = useForm<TBorrow>()
 
     if (isLoading) {
   return (
@@ -65,7 +65,7 @@ console.log(res);
 });
 }
 
- const onSubmit = async (data) => {
+ const onSubmit = async (data:TBorrow) => {
     const res = await createBorrow({...data,book:borrowId, quantity:Number(data?.quantity)}).unwrap()
     console.log(res)}
     return (

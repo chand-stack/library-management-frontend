@@ -1,9 +1,9 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react"
 import type { IBook } from "../../Types/book.type"
-
+// https://library-server-sandy.vercel.app/
 export const libraryApi = createApi({
     reducerPath:"libraryApi",
-    baseQuery: fetchBaseQuery({baseUrl:"http://localhost:5000/api"}),
+    baseQuery: fetchBaseQuery({baseUrl:"https://library-server-sandy.vercel.app/api"}),
     tagTypes:["books","borrows"],
     endpoints:(builder)=>({
         getBooks:builder.query({

@@ -2,7 +2,7 @@ import { MdEditSquare } from "react-icons/md";
 import { FiBookOpen } from "react-icons/fi";
 import { useBorrowBookMutation, useDeleteBookMutation, useGetBooksQuery } from "../../../Redux/Api/baseApi";
 import { RiDeleteBin5Fill } from "react-icons/ri";
-import type { IBook } from "../../../Types/book.type";
+import type { IBook, TBorrow } from "../../../Types/book.type";
 import Swal from "sweetalert2";
 import { Link } from "react-router";
 import { useState } from "react";
@@ -17,7 +17,7 @@ const AllBooks = () => {
   const [deleteBook] = useDeleteBookMutation();
   const [createBorrow] = useBorrowBookMutation();
   const [borrowId, setBorrowId] = useState<string>();
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit } = useForm<TBorrow>();
 
   const [currentPage, setCurrentPage] = useState(1);
 const booksPerPage = 5;
@@ -60,7 +60,7 @@ const currentBooks = books.slice(indexOfFirstBook, indexOfLastBook);
     });
   };
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data:TBorrow) => {
     if (!borrowId) return;
     const res = await createBorrow({
       ...data,

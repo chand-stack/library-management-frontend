@@ -4,11 +4,20 @@ import AddBookBanner from "./AddBookBanner";
 import { FaBook } from "react-icons/fa";
 import NewsletterSection from "../../Shared/NewsletterSection/NewsletterSection";
 
+type TBook={
+      title: string,
+       author : string,
+       genre : "FICTION" | "NON_FICTION" | "SCIENCE" | "HISTORY" | "BIOGRAPHY" | "FANTASY",
+       isbn : string,
+       description : string,
+       copies : number,
+}
+
 const AddBook = () => {
     const[createBook]=useCreateBookMutation();
 
-    const {register,handleSubmit} = useForm()
-  const onSubmit = async (data) => {
+    const {register,handleSubmit} = useForm<TBook>()
+  const onSubmit = async (data:TBook) => {
     const res = await createBook({...data,copies:Number(data.copies),available:true}).unwrap()
     console.log(res)}
     return (
