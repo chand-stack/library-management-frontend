@@ -12,7 +12,7 @@ export const libraryApi = createApi({
         }),
         createBook:builder.mutation({
             query:(bookData)=>({
-                url:"/create-book",
+                url:"/books",
                 method:"POST",
                 body:bookData
             }),

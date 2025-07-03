@@ -1,4 +1,5 @@
 import { Link, NavLink } from "react-router";
+import logo from "../../../assets/logo-1.png"
 
 const Navbar = () => {
   const links = <>
@@ -7,7 +8,7 @@ const Navbar = () => {
   <NavLink
   to="/books"
   className={({ isActive, isPending }) =>
-    isPending ? "pending" : isActive ? "active" : ""
+    isPending ? "pending" : isActive ? "active text-[#1BBC9B] underline" : ""
   }
 >
   All Books
@@ -18,7 +19,7 @@ const Navbar = () => {
   <NavLink
   to="/create-book"
   className={({ isActive, isPending }) =>
-    isPending ? "pending" : isActive ? "active" : ""
+    isPending ? "pending" : isActive ? "active text-[#1BBC9B] underline" : ""
   }
 >
   Add Book
@@ -29,7 +30,7 @@ const Navbar = () => {
   <NavLink
   to="/borrow-summary"
   className={({ isActive, isPending }) =>
-    isPending ? "pending" : isActive ? "active" : ""
+    isPending ? "pending" : isActive ? "active text-[#1BBC9B] underline" : ""
   }
 >
   Borrow Summary
@@ -37,8 +38,8 @@ const Navbar = () => {
   </li>
   </>
     return (
-        <div className="w-full">
-            <div className="navbar bg-base-100 shadow-sm container mx-auto">
+        <div className="w-full bg-[#ECF0F1] shadow-sm p-5">
+            <div className="navbar  container mx-auto">
   <div className="navbar-start">
     <div className="dropdown">
       <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">
@@ -50,15 +51,17 @@ const Navbar = () => {
        {links}
       </ul>
     </div>
-    <Link to="/" className="btn btn-ghost text-xl">daisyUI</Link>
+    <Link to="/" className="">
+    <img className="h-12" src={logo} alt="" />
+    </Link>
   </div>
   <div className="navbar-center hidden lg:flex">
-    <ul className="menu menu-horizontal px-1">
+    <ul className="menu menu-horizontal px-1 text-lg font-medium">
      {links}
     </ul>
   </div>
   <div className="navbar-end">
-    <a className="btn">Button</a>
+    <Link to="/books" className="btn rounded-none h-12 bg-[#1BBC9B] hover:bg-[#16A086] text-white">BORROW A BOOK</Link>
   </div>
 </div>
         </div>

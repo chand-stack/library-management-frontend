@@ -1,4 +1,5 @@
 import BooksCard from "./BooksCard";
+import HomeBanner from "./HomeBanner";
 
 
 const Home = () => {
@@ -6,7 +7,7 @@ const Home = () => {
     
     return (
         <div>
-            <h1>this is home</h1>
+            <HomeBanner/>
             <BooksCard/>
         </div>
     );
