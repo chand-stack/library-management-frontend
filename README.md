@@ -58,6 +58,7 @@ A fully functional, minimal library management system built with **React**, **Ty
 
 ## 📁 Project Structure
 
+```
 src/
 ├── Components/ # UI components like BookTable, Modal, Form, etc.
 ├── Redux/ # Redux slices & API endpoints (books, borrow)
@@ -65,7 +66,7 @@ src/
 ├── Types/ # TypeScript types and interfaces
 ├── App.tsx # Route config and layout
 ├── main.tsx # App root
-
+```
 
 ---
 
