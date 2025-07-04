@@ -68,7 +68,7 @@ src/
 ├── main.tsx # App root
 ```
 
----
+<!-- ---
 
 ## 📸 Screenshots
 
@@ -76,7 +76,7 @@ src/
 |-----------|----------------|
 | ![Book List](https://your-screenshot-url.com) | ![Borrow Summary](https://your-screenshot-url.com) |
 
----
+--- -->
 
 ## 📦 How to Run Locally
 
