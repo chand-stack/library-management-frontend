@@ -18,6 +18,7 @@ const BooksCard = () => {
        const [deleteBook] = useDeleteBookMutation()
        const [createBorrow] = useBorrowBookMutation()
        const [borrowId,setBorrowId]= useState<string>()
+         const [borrowCopies,setborrowCopies] = useState<number>(0)
          const {register,handleSubmit} = useForm<TBorrow>()
 
     if (isLoading) {
@@ -33,16 +34,7 @@ const BooksCard = () => {
     
 
 
-//     const editBookController = (book:IBook) => {
-//   const modal = document.getElementById('my_modal_1') as HTMLDialogElement | null;
-//   if (modal) {
-//     modal.showModal();
-//   } else {
-//     console.warn('Modal element not found');
-//   }
-//   console.log(book, "from view");
-// };
-
+// delete book handler
 const deleteHandler = async (id:string)=>{
     Swal.fire({
   title: "Are you sure?",
@@ -65,9 +57,70 @@ console.log(res);
 });
 }
 
- const onSubmit = async (data:TBorrow) => {
-    const res = await createBorrow({...data,book:borrowId, quantity:Number(data?.quantity)}).unwrap()
-    console.log(res)}
+  // borrow handler
+const onSubmit = async (data: TBorrow) => {
+  if (!borrowId) return;
+
+  if (Number(data?.quantity) > borrowCopies) {
+    return Swal.fire({
+      icon: "error",
+      title: "Invalid Quantity",
+      text: `You cannot borrow more than ${borrowCopies} copies of this book.`,
+      footer: "Please reduce the quantity and try again.",
+    });
+  }
+
+  try {
+    const res = await createBorrow({
+      ...data,
+      book: borrowId,
+      quantity: Number(data?.quantity),
+    }).unwrap();
+console.log(res);
+
+    Swal.fire({
+      icon: "success",
+      title: "Book Borrowed",
+      text: "Your borrow request has been submitted successfully.",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+
+    const modal = document.getElementById("borrow_modal") as HTMLDialogElement | null;
+    modal?.close();
+  } catch (error: unknown) {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "data" in error &&
+    "status" in error
+  ) {
+    const err = error as {
+      status: number;
+      data: {
+        name: string;
+        errors: Record<string, { message: string }>;
+      };
+    };
+
+    if (err.status === 400 && err.data.name === "ValidationError") {
+      const errorMessages = Object.values(err.data.errors)
+        .map((e) => e.message)
+        .join(", ");
+
+      Swal.fire({
+        icon: "error",
+        title: "Validation Failed",
+        text: errorMessages,
+      });
+    }
+  } else {
+    console.error("Unknown error:", error);
+  }
+}
+};
+
+
     return (
       <div className="py-10">
         
@@ -112,6 +165,7 @@ console.log(res);
           const modal = document.getElementById('borrow_modal') as HTMLDialogElement | null;
           if (modal) modal.showModal();
           setBorrowId(book?._id as string);
+          setborrowCopies(book?.copies);
         }}
         className="btn btn-sm bg-[#1BBC9B] hover:bg-[#169c85] text-white"
       >

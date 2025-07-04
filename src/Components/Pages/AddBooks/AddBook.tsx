@@ -3,6 +3,8 @@ import { useCreateBookMutation } from "../../../Redux/Api/baseApi";
 import AddBookBanner from "./AddBookBanner";
 import { FaBook } from "react-icons/fa";
 import NewsletterSection from "../../Shared/NewsletterSection/NewsletterSection";
+import Swal from "sweetalert2";
+import { useNavigate } from "react-router";
 
 type TBook={
       title: string,
@@ -15,11 +17,73 @@ type TBook={
 
 const AddBook = () => {
     const[createBook]=useCreateBookMutation();
+    const navigate = useNavigate()
 
-    const {register,handleSubmit} = useForm<TBook>()
-  const onSubmit = async (data:TBook) => {
-    const res = await createBook({...data,copies:Number(data.copies),available:true}).unwrap()
-    console.log(res)}
+    const {register,handleSubmit,reset} = useForm<TBook>()
+ const onSubmit = async (data: TBook) => {
+  try {
+    const res = await createBook({
+      ...data,
+      copies: Number(data.copies),
+      available: true,
+    }).unwrap();
+
+    console.log(res);
+
+    Swal.fire({
+      icon: "success",
+      title: "Book Added!",
+      text: "The book has been successfully added to the library.",
+    });
+    reset()
+    navigate("/books")
+  } catch (error: unknown) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "data" in error &&
+      "status" in error
+    ) {
+      const err = error as {
+        status: number;
+        data: {
+          name?: string;
+          message?: string;
+          errors?: Record<string, { message: string }>;
+        };
+      };
+
+      // 🧠 Handle validation errors from backend
+      if (err.status === 400 && err.data?.errors) {
+        const errorMessages = Object.values(err.data.errors)
+          .map((e) => e.message)
+          .join(", ");
+
+        Swal.fire({
+          icon: "error",
+          title: "Validation Error",
+          text: errorMessages,
+        });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: err.data?.message || "Something went wrong. Please try again.",
+        });
+      }
+    } else {
+      // Unknown error fallback
+      Swal.fire({
+        icon: "error",
+        title: "Unexpected Error",
+        text: "An unknown error occurred. Please try again later.",
+      });
+
+      console.error("Unhandled error:", error);
+    }
+  }
+};
+
     return (
       <div>
         <AddBookBanner/>

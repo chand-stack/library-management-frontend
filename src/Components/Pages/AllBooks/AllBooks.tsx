@@ -17,6 +17,7 @@ const AllBooks = () => {
   const [deleteBook] = useDeleteBookMutation();
   const [createBorrow] = useBorrowBookMutation();
   const [borrowId, setBorrowId] = useState<string>();
+  const [borrowCopies,setborrowCopies] = useState<number>(0)
   const { register, handleSubmit } = useForm<TBorrow>();
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -53,22 +54,75 @@ const currentBooks = books.slice(indexOfFirstBook, indexOfLastBook);
         await deleteBook(id);
         Swal.fire({
           title: "Deleted!",
-          text: "Your file has been deleted.",
+          text: "Your Book has been deleted.",
           icon: "success",
         });
       }
     });
   };
 
-  const onSubmit = async (data:TBorrow) => {
-    if (!borrowId) return;
+  // borrow handler
+const onSubmit = async (data: TBorrow) => {
+  if (!borrowId) return;
+
+  if (Number(data?.quantity) > borrowCopies) {
+    return Swal.fire({
+      icon: "error",
+      title: "Invalid Quantity",
+      text: `You cannot borrow more than ${borrowCopies} copies of this book.`,
+      footer: "Please reduce the quantity and try again.",
+    });
+  }
+
+  try {
     const res = await createBorrow({
       ...data,
       book: borrowId,
       quantity: Number(data?.quantity),
     }).unwrap();
-    console.log(res);
-  };
+console.log(res);
+
+    Swal.fire({
+      icon: "success",
+      title: "Book Borrowed",
+      text: "Your borrow request has been submitted successfully.",
+      timer: 2000,
+      showConfirmButton: false,
+    });
+
+    const modal = document.getElementById("borrow_modal") as HTMLDialogElement | null;
+    modal?.close();
+  } catch (error: unknown) {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "data" in error &&
+    "status" in error
+  ) {
+    const err = error as {
+      status: number;
+      data: {
+        name: string;
+        errors: Record<string, { message: string }>;
+      };
+    };
+
+    if (err.status === 400 && err.data.name === "ValidationError") {
+      const errorMessages = Object.values(err.data.errors)
+        .map((e) => e.message)
+        .join(", ");
+
+      Swal.fire({
+        icon: "error",
+        title: "Validation Failed",
+        text: errorMessages,
+      });
+    }
+  } else {
+    console.error("Unknown error:", error);
+  }
+}
+};
 
   return (
     <div>
@@ -101,7 +155,7 @@ const currentBooks = books.slice(indexOfFirstBook, indexOfLastBook);
                 <td>{book?.author}</td>
                 <td>{book?.genre}</td>
                 <td>{book?.isbn}</td>
-                <td>{book?.copies}</td>
+                <td className="text-center">{book?.copies}</td>
                 <td>{book?.available ? "Available" : "Unavailable"}</td>
                 <td>
                   <Link to={`/books/${book?._id}`} className="btn btn-sm btn-primary">
@@ -133,19 +187,22 @@ const currentBooks = books.slice(indexOfFirstBook, indexOfLastBook);
                   </button>
                 </td>
                 <td className="text-center">
-                  <button
+                  {
+                    book?.available ? <button
                     onClick={() => {
                       const modal = document.getElementById(
                         "borrow_modal"
                       ) as HTMLDialogElement | null;
                       if (modal) modal.showModal();
                       setBorrowId(book?._id as string);
+                      setborrowCopies(book?.copies)
                     }}
                     className="btn btn-sm btn-success"
                     title="Borrow Book"
                   >
                     <FiBookOpen />
-                  </button>
+                  </button> : <button className="btn btn-sm">Unavailable</button>
+                  }
                 </td>
               </tr>
             ))}

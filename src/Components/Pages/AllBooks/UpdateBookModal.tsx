@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import type { IBook } from "../../../Types/book.type";
 import { useEffect } from "react";
 import { useUpdateBookMutation } from "../../../Redux/Api/baseApi";
+import Swal from "sweetalert2";
 
 const UpdateBookModal = ({ bookData }: { bookData: IBook | null }) => {
   const { register, handleSubmit, reset } = useForm<IBook>();
@@ -18,16 +19,57 @@ const UpdateBookModal = ({ bookData }: { bookData: IBook | null }) => {
     if (error) console.error("Update failed:", error);
   }, [isSuccess, error]);
 
-  const onSubmit = async (data: IBook) => {
-    try {
-      const res = await updateBook(data).unwrap();
-      console.log("Book updated:", res);
-      const modal = document.getElementById("my_modal_1") as HTMLDialogElement | null;
-      modal?.close();
-    } catch (err) {
-      console.error("Update failed:", err);
+  // update book handler
+ const onSubmit = async (data: IBook) => {
+  try {
+    const res = await updateBook(data).unwrap();
+    console.log("Book updated:", res);
+
+    // ✅ Close modal
+    const modal = document.getElementById("my_modal_1") as HTMLDialogElement | null;
+    modal?.close();
+
+    // ✅ Show success alert
+    Swal.fire({
+      icon: "success",
+      title: "Book Updated!",
+      text: "The book details have been successfully updated.",
+    });
+  } catch (err: unknown) {
+    console.error("Update failed:", err);
+
+    if (
+      typeof err === "object" &&
+      err !== null &&
+      "data" in err &&
+      "status" in err
+    ) {
+      const error = err as {
+        status: number;
+        data: {
+          message?: string;
+          errors?: Record<string, { message: string }>;
+        };
+      };
+
+      const errorMessages = error.data?.errors
+        ? Object.values(error.data.errors).map(e => e.message).join(", ")
+        : error.data?.message || "Something went wrong while updating the book.";
+
+      Swal.fire({
+        icon: "error",
+        title: "Update Failed",
+        text: errorMessages,
+      });
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Unexpected Error",
+        text: "An unknown error occurred. Please try again.",
+      });
     }
-  };
+  }
+};
 
   if (!bookData) return null; // ✅ Don't render if no book selected
 
