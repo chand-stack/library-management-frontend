@@ -22,7 +22,13 @@ const UpdateBookModal = ({ bookData }: { bookData: IBook | null }) => {
   // update book handler
  const onSubmit = async (data: IBook) => {
   try {
-    const res = await updateBook(data).unwrap();
+    // Build payload with available: true only when copies > 0
+    const updatedData: IBook = {
+      ...data,
+      ...(Number(data.copies) > 0 && { available: true })
+    };
+
+    const res = await updateBook(updatedData).unwrap();
     console.log("Book updated:", res);
 
     // ✅ Close modal
@@ -70,6 +76,7 @@ const UpdateBookModal = ({ bookData }: { bookData: IBook | null }) => {
     }
   }
 };
+
 
   if (!bookData) return null; // ✅ Don't render if no book selected
 

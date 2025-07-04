@@ -4,7 +4,7 @@ import { useBorrowBookMutation, useDeleteBookMutation, useGetBooksQuery } from "
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import type { IBook, TBorrow } from "../../../Types/book.type";
 import Swal from "sweetalert2";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import UpdateBookModal from "./UpdateBookModal";
@@ -18,7 +18,8 @@ const AllBooks = () => {
   const [createBorrow] = useBorrowBookMutation();
   const [borrowId, setBorrowId] = useState<string>();
   const [borrowCopies,setborrowCopies] = useState<number>(0)
-  const { register, handleSubmit } = useForm<TBorrow>();
+  const { register, handleSubmit,reset } = useForm<TBorrow>();
+  const navigate = useNavigate()
 
   const [currentPage, setCurrentPage] = useState(1);
 const booksPerPage = 5;
@@ -66,12 +67,16 @@ const onSubmit = async (data: TBorrow) => {
   if (!borrowId) return;
 
   if (Number(data?.quantity) > borrowCopies) {
-    return Swal.fire({
+     Swal.fire({
       icon: "error",
       title: "Invalid Quantity",
       text: `You cannot borrow more than ${borrowCopies} copies of this book.`,
       footer: "Please reduce the quantity and try again.",
     });
+    const modal = document.getElementById("borrow_modal") as HTMLDialogElement | null;
+    modal?.close();
+    reset()
+    return
   }
 
   try {
@@ -92,6 +97,7 @@ console.log(res);
 
     const modal = document.getElementById("borrow_modal") as HTMLDialogElement | null;
     modal?.close();
+    navigate("/borrow-summary")
   } catch (error: unknown) {
   if (
     typeof error === "object" &&

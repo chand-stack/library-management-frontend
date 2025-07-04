@@ -1,6 +1,7 @@
 import {createApi, fetchBaseQuery} from "@reduxjs/toolkit/query/react"
 import type { IBook } from "../../Types/book.type"
 // https://library-server-sandy.vercel.app/
+// http://localhost:5000/
 export const libraryApi = createApi({
     reducerPath:"libraryApi",
     baseQuery: fetchBaseQuery({baseUrl:"https://library-server-sandy.vercel.app/api"}),
@@ -47,7 +48,7 @@ export const libraryApi = createApi({
                 method:"POST",
                 body:borrowData
             }),
-            invalidatesTags:["borrows"]
+            invalidatesTags:["borrows","books"]
         }),
         getBorrow:builder.query({
             query:()=>"/borrow",

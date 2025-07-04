@@ -3,7 +3,7 @@ import { useBorrowBookMutation, useDeleteBookMutation, useGetBooksQuery } from "
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import type { IBook, TBorrow } from "../../../Types/book.type";
 import Swal from "sweetalert2";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import UpdateBookModal from "../AllBooks/UpdateBookModal";
@@ -20,6 +20,7 @@ const BooksCard = () => {
        const [borrowId,setBorrowId]= useState<string>()
          const [borrowCopies,setborrowCopies] = useState<number>(0)
          const {register,handleSubmit} = useForm<TBorrow>()
+         const navigate = useNavigate()
 
     if (isLoading) {
   return (
@@ -88,6 +89,7 @@ console.log(res);
 
     const modal = document.getElementById("borrow_modal") as HTMLDialogElement | null;
     modal?.close();
+    navigate("/borrow-summary")
   } catch (error: unknown) {
   if (
     typeof error === "object" &&

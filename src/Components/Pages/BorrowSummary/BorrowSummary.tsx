@@ -35,7 +35,7 @@ const BorrowSummary = () => {
     <tbody className="text-sm">
       {
         data?.data?.map((borrow: IBorrow, index: number) => (
-          <tr key={borrow?.book?.isbn} className="hover:bg-base-200 transition-colors">
+          <tr key={index} className="hover:bg-base-200 transition-colors">
             <th className="py-3 px-4">{index + 1}</th>
             <td className="py-3 px-4 font-medium">{borrow?.book?.title}</td>
             <td className="py-3 px-4">{borrow?.book?.isbn}</td>
