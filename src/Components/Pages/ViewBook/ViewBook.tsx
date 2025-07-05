@@ -30,7 +30,7 @@ const ViewBook = () => {
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-[60vh]">
-        <span className="loading loading-bars loading-xl text-primary"></span>
+        <span className="loading loading-bars loading-xl text-[#1BBC9B]"></span>
       </div>
     );
   }
