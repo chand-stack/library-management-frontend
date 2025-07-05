@@ -22,20 +22,15 @@ const UpdateBookModal = ({ bookData }: { bookData: IBook | null }) => {
   // update book handler
  const onSubmit = async (data: IBook) => {
   try {
-    // Build payload with available: true only when copies > 0
-    const updatedData: IBook = {
-      ...data,
-      ...(Number(data.copies) > 0 && { available: true })
-    };
 
-    const res = await updateBook(updatedData).unwrap();
+    const res = await updateBook(data).unwrap();
     console.log("Book updated:", res);
 
-    // ✅ Close modal
+    // Close modal
     const modal = document.getElementById("my_modal_1") as HTMLDialogElement | null;
     modal?.close();
 
-    // ✅ Show success alert
+    // Show success alert
     Swal.fire({
       icon: "success",
       title: "Book Updated!",

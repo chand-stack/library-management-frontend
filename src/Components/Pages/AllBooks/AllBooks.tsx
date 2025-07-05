@@ -5,7 +5,7 @@ import { RiDeleteBin5Fill } from "react-icons/ri";
 import type { IBook, TBorrow } from "../../../Types/book.type";
 import Swal from "sweetalert2";
 import { Link, useNavigate } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import UpdateBookModal from "./UpdateBookModal";
 import AllBooksBanner from "./AllBooksBanner";
@@ -17,21 +17,30 @@ const AllBooks = () => {
   const [deleteBook] = useDeleteBookMutation();
   const [createBorrow] = useBorrowBookMutation();
   const [borrowId, setBorrowId] = useState<string>();
-  const [borrowCopies,setborrowCopies] = useState<number>(0)
-  const { register, handleSubmit,reset } = useForm<TBorrow>();
-  const navigate = useNavigate()
+  const [borrowCopies, setBorrowCopies] = useState<number>(0);
+  const { register, handleSubmit, reset } = useForm<TBorrow>();
+  const navigate = useNavigate();
 
-  const [currentPage, setCurrentPage] = useState(1);
-const booksPerPage = 5;
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showBorrowModal, setShowBorrowModal] = useState(false);
 
-const books = data?.data || [];
-const totalPages = Math.ceil(books.length / booksPerPage);
 
-// Get books for current page
-const indexOfLastBook = currentPage * booksPerPage;
-const indexOfFirstBook = indexOfLastBook - booksPerPage;
-const currentBooks = books.slice(indexOfFirstBook, indexOfLastBook);
 
+  useEffect(() => {
+    if (showEditModal) {
+      const modal = document.getElementById("my_modal_1") as HTMLDialogElement | null;
+      modal?.showModal();
+      setShowEditModal(false);
+    }
+  }, [showEditModal]);
+
+  useEffect(() => {
+    if (showBorrowModal) {
+      const modal = document.getElementById("borrow_modal") as HTMLDialogElement | null;
+      modal?.showModal();
+      setShowBorrowModal(false);
+    }
+  }, [showBorrowModal]);
 
   if (isLoading) {
     return (
@@ -62,73 +71,71 @@ const currentBooks = books.slice(indexOfFirstBook, indexOfLastBook);
     });
   };
 
-  // borrow handler
-const onSubmit = async (data: TBorrow) => {
-  if (!borrowId) return;
+  const onSubmit = async (data: TBorrow) => {
+    if (!borrowId) return;
 
-  if (Number(data?.quantity) > borrowCopies) {
-     Swal.fire({
-      icon: "error",
-      title: "Invalid Quantity",
-      text: `You cannot borrow more than ${borrowCopies} copies of this book.`,
-      footer: "Please reduce the quantity and try again.",
-    });
-    const modal = document.getElementById("borrow_modal") as HTMLDialogElement | null;
-    modal?.close();
-    reset()
-    return
-  }
-
-  try {
-    const res = await createBorrow({
-      ...data,
-      book: borrowId,
-      quantity: Number(data?.quantity),
-    }).unwrap();
-console.log(res);
-
-    Swal.fire({
-      icon: "success",
-      title: "Book Borrowed",
-      text: "Your borrow request has been submitted successfully.",
-      timer: 2000,
-      showConfirmButton: false,
-    });
-
-    const modal = document.getElementById("borrow_modal") as HTMLDialogElement | null;
-    modal?.close();
-    navigate("/borrow-summary")
-  } catch (error: unknown) {
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "data" in error &&
-    "status" in error
-  ) {
-    const err = error as {
-      status: number;
-      data: {
-        name: string;
-        errors: Record<string, { message: string }>;
-      };
-    };
-
-    if (err.status === 400 && err.data.name === "ValidationError") {
-      const errorMessages = Object.values(err.data.errors)
-        .map((e) => e.message)
-        .join(", ");
-
+    if (Number(data?.quantity) > borrowCopies) {
       Swal.fire({
         icon: "error",
-        title: "Validation Failed",
-        text: errorMessages,
+        title: "Invalid Quantity",
+        text: `You cannot borrow more than ${borrowCopies} copies of this book.`,
+        footer: "Please reduce the quantity and try again.",
       });
+      const modal = document.getElementById("borrow_modal") as HTMLDialogElement | null;
+      modal?.close();
+      reset();
+      return;
     }
-  } else {
-    console.error("Unknown error:", error);
-  }
-}
-};
+
+    try {
+       await createBorrow({
+        ...data,
+        book: borrowId,
+        quantity: Number(data?.quantity),
+      }).unwrap();
+
+      Swal.fire({
+        icon: "success",
+        title: "Book Borrowed",
+        text: "Your borrow request has been submitted successfully.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      const modal = document.getElementById("borrow_modal") as HTMLDialogElement | null;
+      modal?.close();
+      navigate("/borrow-summary");
+    } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "data" in error &&
+        "status" in error
+      ) {
+        const err = error as {
+          status: number;
+          data: {
+            name: string;
+            errors: Record<string, { message: string }>;
+          };
+        };
+
+        if (err.status === 400 && err.data.name === "ValidationError") {
+          const errorMessages = Object.values(err.data.errors)
+            .map((e) => e.message)
+            .join(", ");
+
+          Swal.fire({
+            icon: "error",
+            title: "Validation Failed",
+            text: errorMessages,
+          });
+        }
+      } else {
+        console.error("Unknown error:", error);
+      }
+    }
+  };
 
   return (
     <div>
@@ -151,11 +158,8 @@ console.log(res);
             </tr>
           </thead>
           <tbody>
-            {currentBooks?.map((book: IBook, index: number) => (
-              <tr
-                key={book?._id}
-                className="hover:bg-gray-100 transition-colors"
-              >
+            {data?.data?.map((book: IBook, index: number) => (
+              <tr key={book?._id} className="hover:bg-gray-100 transition-colors">
                 <th>{index + 1}</th>
                 <td>{book?.title}</td>
                 <td>{book?.author}</td>
@@ -172,10 +176,7 @@ console.log(res);
                   <button
                     onClick={() => {
                       setSelectedBook(book);
-                      const modal = document.getElementById(
-                        "my_modal_1"
-                      ) as HTMLDialogElement | null;
-                      if (modal) modal.showModal();
+                      setShowEditModal(true);
                     }}
                     className="btn btn-sm btn-warning"
                     title="Edit Book"
@@ -193,60 +194,32 @@ console.log(res);
                   </button>
                 </td>
                 <td className="text-center">
-                  {
-                    book?.available ? <button
-                    onClick={() => {
-                      const modal = document.getElementById(
-                        "borrow_modal"
-                      ) as HTMLDialogElement | null;
-                      if (modal) modal.showModal();
-                      setBorrowId(book?._id as string);
-                      setborrowCopies(book?.copies)
-                    }}
-                    className="btn btn-sm btn-success"
-                    title="Borrow Book"
-                  >
-                    <FiBookOpen />
-                  </button> : <button className="btn btn-sm">Unavailable</button>
-                  }
+                  {book?.available ? (
+                    <button
+                      onClick={() => {
+                        setBorrowId(book._id as string);
+                        setBorrowCopies(book.copies);
+                        setShowBorrowModal(true);
+                      }}
+                      className="btn btn-sm btn-success"
+                      title="Borrow Book"
+                    >
+                      <FiBookOpen />
+                    </button>
+                  ) : (
+                    <button className="btn btn-sm">Unavailable</button>
+                  )}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-{/* Pagination */}
-<div className="flex justify-center my-10 gap-2 flex-wrap">
-  <button
-    className="btn btn-sm bg-[#1BBC9B] text-white"
-    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-    disabled={currentPage === 1}
-  >
-    Previous
-  </button>
-
-  {[...Array(totalPages)].map((_, i) => (
-    <button
-      key={i}
-      onClick={() => setCurrentPage(i + 1)}
-      className={`btn btn-sm ${currentPage === i + 1 ? "btn-active text-white bg-[#1BBC9B]" : ""}`}
-    >
-      {i + 1}
-    </button>
-  ))}
-
-  <button
-    className="btn btn-sm bg-[#1BBC9B] text-white"
-    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-    disabled={currentPage === totalPages}
-  >
-    Next
-  </button>
-</div>
+      
 
         <UpdateBookModal bookData={selectedBook} />
 
-        {/* borrow modal */}
+        {/* Borrow Modal */}
         <dialog id="borrow_modal" className="modal">
           <div className="modal-box">
             <h3 className="font-bold text-lg mb-4">Borrow Book</h3>
@@ -267,12 +240,13 @@ console.log(res);
               <fieldset className="fieldset">
                 <legend className="fieldset-legend">Due Date</legend>
                 <input
-                  {...register("dueDate")}
-                  required
-                  type="date"
-                  className="input input-bordered w-full"
-                  placeholder="Type here"
-                />
+  {...register("dueDate")}
+  required
+  type="date"
+  className="input input-bordered w-full"
+  placeholder="Select a date"
+  min={new Date().toISOString().split("T")[0]} // disables past dates
+/>
               </fieldset>
               <div>
                 <button className="btn bg-[#1BBC9B] hover:bg-[#16A086] text-white w-full">Borrow Now</button>
@@ -280,14 +254,13 @@ console.log(res);
             </form>
             <div className="modal-action">
               <form method="dialog">
-                {/* if there is a button in form, it will close the modal */}
                 <button className="btn text-white bg-red-600">Close</button>
               </form>
             </div>
           </div>
         </dialog>
       </div>
-      <NewsletterSection/>
+      <NewsletterSection />
     </div>
   );
 };

@@ -2,18 +2,28 @@
 import {
   useGetBookByIdQuery,
   useDeleteBookMutation,
+  useBorrowBookMutation,
 } from "../../../Redux/Api/baseApi";
 import { MdEditSquare } from "react-icons/md";
 import { RiDeleteBin5Fill } from "react-icons/ri";
 import { FaBookOpen } from "react-icons/fa";
 import Swal from "sweetalert2";
 import { useNavigate, useParams } from "react-router";
+import { useState } from "react";
+import type { IBook, TBorrow } from "../../../Types/book.type";
+import UpdateBookModal from "../AllBooks/UpdateBookModal";
+import { useForm } from "react-hook-form";
 
 const ViewBook = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [selectedBook, setSelectedBook] = useState<IBook | null>(null);
   const { data, isLoading } = useGetBookByIdQuery(id as string);
   const [deleteBook] = useDeleteBookMutation();
+  const [createBorrow] = useBorrowBookMutation();
+  const { register, handleSubmit, reset } = useForm<TBorrow>();
+  const [borrowId, setBorrowId] = useState<string | undefined>(undefined);
+  const [borrowCopies, setBorrowCopies] = useState<number>(0);
 
   const book = data?.data;
 
@@ -25,6 +35,7 @@ const ViewBook = () => {
     );
   }
 
+  // delete handler
   const handleDelete = async (id:string) => {
     Swal.fire({
       title: "Are you sure?",
@@ -43,6 +54,73 @@ const ViewBook = () => {
     });
   };
 
+  // borrow handler
+   const onSubmit = async (data: TBorrow) => {
+    if (!borrowId) return;
+
+    if (Number(data?.quantity) > borrowCopies) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Quantity",
+        text: `You cannot borrow more than ${borrowCopies} copies of this book.`,
+        footer: "Please reduce the quantity and try again.",
+      });
+      const modal = document.getElementById("borrow_modal") as HTMLDialogElement | null;
+      modal?.close();
+      reset();
+      return;
+    }
+
+    try {
+       await createBorrow({
+        ...data,
+        book: borrowId,
+        quantity: Number(data?.quantity),
+      }).unwrap();
+
+      Swal.fire({
+        icon: "success",
+        title: "Book Borrowed",
+        text: "Your borrow request has been submitted successfully.",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+
+      const modal = document.getElementById("borrow_modal") as HTMLDialogElement | null;
+      modal?.close();
+      reset();
+      navigate("/borrow-summary");
+    } catch (error: unknown) {
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "data" in error &&
+        "status" in error
+      ) {
+        const err = error as {
+          status: number;
+          data: {
+            name: string;
+            errors: Record<string, { message: string }>;
+          };
+        };
+
+        if (err.status === 400 && err.data.name === "ValidationError") {
+          const errorMessages = Object.values(err.data.errors)
+            .map((e) => e.message)
+            .join(", ");
+
+          Swal.fire({
+            icon: "error",
+            title: "Validation Failed",
+            text: errorMessages,
+          });
+        }
+      } else {
+        console.error("Unknown error:", error);
+      }
+    }
+  };
   return (
     <div className="min-h-[80vh] flex justify-center items-center">
     <div className="max-w-4xl mx-auto mt-10 p-6 bg-white rounded-lg shadow-md">
@@ -79,21 +157,28 @@ const ViewBook = () => {
             >
               <RiDeleteBin5Fill /> Delete
             </button>
-            <button
+            {book?.available ? <button
               className="btn btn-sm btn-accent flex items-center gap-1"
               onClick={() => {
-                const modal = document.getElementById("borrow_modal") as HTMLDialogElement;
-                if (modal) modal.showModal();
-              }}
+                      setBorrowId(book?._id as string);
+                      setBorrowCopies(book?.copies);
+                      setTimeout(() => {
+                        const modal = document.getElementById("borrow_modal") as HTMLDialogElement | null;
+                        modal?.showModal();
+                      }, 0);
+                    }}
             >
               📖 Borrow
-            </button>
+            </button> : <button className="btn btn-sm">Unavailable</button>}
             <button
               className="btn btn-sm btn-info flex items-center gap-1"
-              onClick={() => {
-                const modal = document.getElementById("edit_modal") as HTMLDialogElement;
-                if (modal) modal.showModal();
-              }}
+               onClick={() => {
+                      setSelectedBook(book);
+                      setTimeout(() => {
+                        const modal = document.getElementById("my_modal_1") as HTMLDialogElement | null;
+                        modal?.showModal();
+                      }, 0);
+                    }}
             >
               <MdEditSquare /> Edit
             </button>
@@ -101,31 +186,48 @@ const ViewBook = () => {
         </div>
       </div>
 
-      {/* Optional: Borrow Modal */}
-      <dialog id="borrow_modal" className="modal">
-        <div className="modal-box">
-          <h3 className="font-bold text-lg">Borrow Book</h3>
-          <p>Borrow form goes here...</p>
-          <div className="modal-action">
-            <form method="dialog">
-              <button className="btn">Close</button>
-            </form>
-          </div>
-        </div>
-      </dialog>
+      <UpdateBookModal bookData={selectedBook} />
 
-      {/* Optional: Edit Modal */}
-      <dialog id="edit_modal" className="modal">
-        <div className="modal-box">
-          <h3 className="font-bold text-lg">Edit Book</h3>
-          <p>Edit form goes here...</p>
-          <div className="modal-action">
-            <form method="dialog">
-              <button className="btn">Close</button>
+      {/* Optional: Borrow Modal */}
+        <dialog id="borrow_modal" className="modal">
+          <div className="modal-box">
+            <h3 className="font-bold text-lg mb-4">Borrow Book</h3>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="mx-auto w-full max-w-2xl space-y-4"
+            >
+              <fieldset className="fieldset">
+                <legend className="fieldset-legend">Quantity</legend>
+                <input
+                  {...register("quantity")}
+                  required
+                  type="number"
+                  className="input input-bordered w-full"
+                  placeholder="Type here"
+                />
+              </fieldset>
+              <fieldset className="fieldset">
+                <legend className="fieldset-legend">Due Date</legend>
+                              <input
+  {...register("dueDate")}
+  required
+  type="date"
+  className="input input-bordered w-full"
+  placeholder="Select a date"
+  min={new Date().toISOString().split("T")[0]} // disables past dates
+/>
+              </fieldset>
+              <div>
+                <button className="btn bg-[#1BBC9B] hover:bg-[#16A086] text-white w-full">Borrow Now</button>
+              </div>
             </form>
+            <div className="modal-action">
+              <form method="dialog">
+                <button className="btn text-white bg-red-600">Close</button>
+              </form>
+            </div>
           </div>
-        </div>
-      </dialog>
+        </dialog>
     </div>
     </div>
   );

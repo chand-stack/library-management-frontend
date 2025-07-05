@@ -40,7 +40,7 @@ export const libraryApi = createApi({
                 url:`/books/${id}`,
                 method:"Delete",
             }),
-            invalidatesTags: ["books"]
+            invalidatesTags: ["books","borrows"]
         }),
         BorrowBook:builder.mutation({
             query:(borrowData)=>({
